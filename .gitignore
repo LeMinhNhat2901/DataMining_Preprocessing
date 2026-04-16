@@ -129,6 +129,8 @@ temp/
 # Data files (optional - keep commented if tracking data in git)
 # =========================
 seg_train/
+seg_test/
+seg_pred/
 # data/
 # datasets/
 # *.csv
