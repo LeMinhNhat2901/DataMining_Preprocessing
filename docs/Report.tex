@@ -1,0 +1,123 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\geometry{a4paper, margin=1in}
+
+\title{\textbf{BÁO CÁO ĐỒ ÁN 1: TIỀN XỬ LÝ DỮ LIỆU\\Môn học: Khai thác dữ liệu và ứng dụng}}
+\author{Nhóm NTN NGH}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{TỔNG QUAN \& PHÂN CÔNG CÔNG VIỆC}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|p{5cm}|c|}
+        \hline
+        \textbf{STT} & \textbf{MSSV} & \textbf{Họ và Tên} & \textbf{Nhiệm vụ / Phần đảm nhận} \\ \hline
+        1 & \dots & \dots & Phần 1: Tiền xử lý ảnh \\ \hline
+        2 & \dots & \dots & Phần 2: Tiền xử lý dữ liệu bảng (Tabular) \\ \hline
+        3 & \dots & \dots & Phần 3: Tiền xử lý văn bản (Hoặc 4) \\ \hline
+        4 & \dots & \dots & Tổng hợp báo cáo \\ \hline
+    \end{tabular}
+    \caption{Phân công nhiệm vụ nhóm}
+\end{table}
+
+\section{PHẦN 2: TIỀN XỬ LÝ DỮ LIỆU DẠNG BẢNG (TABULAR DATA)}
+\subsection{2.2.1. Lựa chọn tập dữ liệu}
+Tập dữ liệu được lựa chọn là \textbf{Rain in Australia (weatherAUS.csv)} bao gồm các quan trắc thời tiết thực tế qua nhiều năm. Dataset hoàn toàn thoả mãn yêu cầu đề bài do có số lượng mẫu rất lớn (145,460 dòng $\times$ 23 cột), gồm sự kết hợp giữa 16 cột số (numeric), 6 cột phân loại (categorical) và 1 cột datetime. Tỷ lệ missing data của tập là $10.73\%$, trong đó nhiều cột thiếu trên $40\%$ (Sunshine $48.0\%$, Evaporation $43.2\%$).
+
+\subsection{2.2.2. Phân tích thống kê khám phá (EDA chuyên sâu)}
+\begin{enumerate}
+    \item \textbf{Kiểm định phân phối (D'Agostino-Pearson):} Do $n = 145,460 > 5000$, chúng em sử dụng kiểm định D'Agostino-Pearson để khảo sát Normal Distribution trên 16 cột số.
+    \begin{itemize}
+        \item \textbf{Kết quả:} Kiểm định cho $p$-value xấp xỉ 0 ở cả 16/16 thuộc tính số, và các thống kê $K^2$-stat khổng lồ $\to$ Bác bỏ giả thuyết $H_0$. \textbf{100\% các thuộc tính KHÔNG tuân theo phân phối chuẩn.}
+        \item \textbf{Cụ thể:} \textit{Rainfall} lệch phải cực mạnh (Skewness = 9.836, Kurtosis = 178.146), \textit{Sunshine} bị lệch trái, \textit{Pressure9am} gần chuẩn nhất nhưng mang tính đuôi nặng.
+        \item \textbf{Minh chứng:} Kết quả này định hình chiến lược ở khâu Data Scaling (Phải tránh sử dụng StandardScaler đơn thuần).
+    \end{itemize}
+
+    \item \textbf{Phân tích tương quan đa biến:} Heatmap của hệ số tương quan Pearson và Spearman cho thấy \textbf{3 tập hợp biến có đa cộng tuyến cực mạnh}:
+    \begin{itemize}
+        \item \textit{Temp3pm} $\leftrightarrow$ \textit{MaxTemp}: $r=0.985$
+        \item \textit{Pressure9am} $\leftrightarrow$ \textit{Pressure3pm}: $r=0.961$
+        \item \textit{Temp9am} $\leftrightarrow$ \textit{MinTemp}: $r=0.902$
+        \item \textbf{Nhận xét \& Giải pháp:} Đa cộng tuyến gây suy diễn phình đại hệ số trong hồi quy tuyến tính. Đề xuất của nhóm là bỏ MaxTemp (Giữ Temp3pm - sát với mốc dự đoán ngày mai), bỏ MinTemp và bỏ Pressure9am để tối giản không gian đặc trưng.
+    \end{itemize}
+
+    \item \textbf{Phân tích cơ chế giá trị thiếu (Little's MCAR \& Chi-Square Test):} 
+    Dữ liệu có tổn thất cực kỳ lớn ở cột Sunshine và Evaporation ($>40\%$). 
+    \begin{itemize}
+        \item Bài kiểm tra \textbf{Little's MCAR Test} chỉ ra $p$-value = 0.000 $\ll$ 0.05 $\to$ Việc thiếu dữ liệu KHÔNG sinh ra hoàn toàn ngẫu nhiên (Bác bỏ MCAR).
+        \item Nhóm chạy thêm \textbf{Kiểm nghiệm Độc lập Chi-Square ($H_0$: Việc thiếu độc lập với Vị trí)}, kết quả là 21/21 đặc trưng bị khuyết đều có lượng p-value bằng 0 đối chiếu với cột "Location", điểm $Cramér V$ ghi nhận mức tương tác cực kỳ cao (VD: Pressure3pm có $V=0.9094$).
+        \item \textbf{Kết luận:} Dữ liệu thời tiết thiếu theo cấu trúc \textbf{MAR (Missing At Random)} do thiết bị được đặt theo trạm đo khác nhau. Imputation bằng suy diễn Model-based như MICE được ưu tiên.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{2.2.3. Các kỹ thuật tiền xử lý và đánh giá định lượng}
+\begin{enumerate}
+    \item \textbf{Xử lý giá trị thiếu (Imputation):}
+    Nhóm chủ động tạo \textbf{10\% giá trị khuyết nhân tạo dạng MCAR} trên tập hợp 58,236 record chuẩn để tính toán RMSE cho 7 chiến lược (Mean, Median, Mode, k-NN(3/5/10), MICE).
+    \begin{itemize}
+        \item \textbf{Kết quả:} \textit{MICE (IterativeImputer)} vô địch với RMSE thấp nhất: $4.9734$. Kế tiếp là k-NN(k=10) có RMSE: $5.5821$. Các Imputer đơn biến yếu kém nhất (Median RMSE=9.61, Mode RMSE=10.22).
+        \item \textbf{Nhận định:} MICE áp dụng giải phương trình đa biến lặp lại đã thâu tóm được cấu trúc khuyết MAR của weatherAUS. Do đó MICE chính thức được ứng dụng để clear hoàn toàn NaNs cho tập train.
+    \end{itemize}
+    
+    \item \textbf{Phát hiện và Xử lý ngoại lai:}
+    4 module độc lập được cài đặt, trả ra số liệu outliners chênh lệch rõ rệt (dựa trên 145,460 sample):
+    \begin{itemize}
+        \item IQR xác định: 37,290 sample bất thường (25.64\% - do Rainfall nhiều outlier).
+        \item Z-score ($|z|>3$): 7,880 sample (5.42\%).
+        \item Isolation Forest (cont=0.05): 7,273 sample (5.0\%).
+        \item DBSCAN: 7,236 sample bất thường.
+        \item \textbf{Đánh giá Jaccard \& KS-Test:} Sự khác biệt giữa IQR và Z-Score có Jaccard Index khoảng 0.211. Kolmogorov-Smirnov Test chứng thực phân phối dữ liệu bị méo mó đáng kể ở 16/16 cột nếu xoá bỏ outlier. Do dataset vốn tồn tại lượng outlier khổng lồ (bản chất của khí hậu cực đoan như bão rớt - rainfall lớn, gió giật), thao tác drop outliners bị hủy bỏ. Phương hướng là sử dụng Robust Scaler định hình lại.
+    \end{itemize}
+    
+    \item \textbf{Chuẩn hoá dữ liệu (Data Scaling):}
+    Nhóm áp dụng Min-Max, Z-score, Robust và Quantile Transform. 
+    \begin{itemize}
+        \item \textbf{Kiểm định Levene's Test ($H_0$: Phương sai đồng nhất)} trên tất cả 16 cột đều có $p \approx 0$ minh chứng cho việc các phép xoay trục Scale này có thay đổi căn bản cấu trúc phân phối tập dữ liệu.
+        \item \textbf{Nhận định qua Violin Plot:} Z-Score và MinMaxScaler bẻ cong dải dữ liệu mạnh (làm hỏng phân phối skewed gốc do ngậm Outlier). Trái lại, \textit{RobustScaler} giữ nguyên hình dạng đuôi dài (do sử dụng trung vị Q1-Q3), triệt tiêu sự làm biến dạng các biến số khí hậu.
+    \end{itemize}
+    
+    \item \textbf{Mã hóa biến phân loại nâng cao (Feature Encoding):}
+    Cột Location chứa đến 49 labels, việc sử dụng One-Hot là cấm kỵ. Các phương án thay thế:
+    \begin{itemize}
+        \item One-Hot Encoding làm bùng nổ dữ liệu từ 5 lên 94 cột.
+        \item \textbf{Binary Encoding} chuyển 49 categories thành vỏn vẹn 6 bit $\to$ giữ vững tập Feature ở 23 cột.
+        \item \textbf{Target Encoding (CV 5 fold)} và \textbf{Frequency Encoding} không làm thay đổi biến nhưng cung cấp tính tương quan học được siêu việt. 
+        \item \textbf{Đánh giá VIF:} Đỉnh VIF của Target Encoding chỉ nhô tới mức $1.73$, của Binary là $1.3$. Tất cả đều dắt lật ngửa ngưỡng VIF=10, đảm bảo tiến trình Encode không để lộ ra hiện tượng Đa Cộng Tuyến đính kèm.
+    \end{itemize}
+    
+    \item \textbf{Lựa chọn và Giảm chiều đặc trưng (Feature Selection):}
+    Cần giảm mức phân tâm của tập đặc trưng 21 cột (sau khi scale/encode).
+    \begin{itemize}
+        \item \textbf{Mutual Information \& ANOVA:} \textit{Humidity3pm} thống lĩnh các BXH (Hạng 1) với MI Score $0.111$, tiếp đó là \textit{Sunshine} ($0.103$) và vòng lập tree-based của Random Forest Importance cũng đồng nhất Humidity3pm (Importance $0.238$).
+        \item \textbf{Số lượng tối ưu:} Train bằng 5-fold CV Linear Regression, F1-Macro xuất hiện Diminishing Returns: 10 attributes cho kết quả F1=0.7394, khi nhồi đủ 21 attribute mất O(N) cao cấp nhưng F1 chỉ lên nhích lên 0.7423 (+0.3\%). \textbf{Chỉ chọn top 10 Đặc Trưng}.
+        \item \textbf{Giảm chiều 3D:} Dữ liệu có thể bộc lộ $99\%$ variance chỉ bằng 7 thành phần tuyến tính \textit{PCA}. Trích chiếu phi tuyến qua t-SNE / thuật toán tự biên dịch \textit{SimpleUMAP} (SGD Optimizer 200 epochs, $K=15$) đều thể hiện cụm Non-Linear lồng chéo, yêu cầu mô hình cấp cao.
+    \end{itemize}
+    
+    \item \textbf{Xứ lý mất cân bằng lớp [Nâng cao]:}
+    Target \textit{RainTomorrow} có tỷ lệ No (78.1\%) và Yes (21.9\%), tỷ lệ $IMB=0.28 \to$ Lệch đáng để Resample.
+    \begin{itemize}
+        \item Resample bằng thuật toán: SMOTE, ADASYN và Random Under-sampling.
+        \item \textbf{Kỷ luật Data Leakage:} Resampling CHỈ áp dụng trên tập Train (Quy mô $N=116,368$) MÀ KHÔNG đụng vào phần tử nằm trong tập validation/test $N=29,092$.
+        \item \textbf{Đánh giá:} Bất ngờ thay, việc Resample lại cho tỷ lệ F1-Macro và đo lường AUC-ROC thấp hơn (SMOTE có F1=0.7381 so với Baseline thuần khiết F1=0.7489) - thể hiện cấu trúc Tree-based Model xử lý Imbalance quá khỏe mà Resample chỉ đem lại hậu quả chèn ép sinh ra vùng ngoại tiếp nhiễu ở ranh giới phân loại. \textit{Quyết định: Không áp dụng Resample lên Dataset cuối cùng.}
+    \end{itemize}
+\end{enumerate}
+
+\section{PHẦN 1 \& PHẦN 3/4 (TIỀN XỬ LÝ ẢNH, VĂN BẢN QUANG/TIME-SERIES)}
+\textit{Thành viên khác trong nhóm bổ sung vào báo cáo nội dung công việc (Image, Text/Time Series) tương ứng...}
+
+\end{document}
