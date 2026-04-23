@@ -1,0 +1,25 @@
+numpy
+pandas
+matplotlib
+seaborn
+scipy
+scikit-learn
+statsmodels
+opencv-python
+Pillow
+scikit-image
+imagehash
+tqdm
+missingno
+wordcloud
+nltk
+spacy
+tokenizers
+gensim
+sentence-transformers
+jupyter
+ipykernel
+
+# Extra runtime assets needed by the notebooks:
+# python -m nltk.downloader averaged_perceptron_tagger_eng wordnet omw-1.4
+# python -m spacy download en_core_web_sm
