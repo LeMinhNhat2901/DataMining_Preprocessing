@@ -80,18 +80,17 @@ DataMining_Preprocessing/
 │   ├── raw     
 │   └── processed                # Raw and processed datasets (not tracked by git)
 │
-├── docs/                        # Supporting documentation
+├── docs/   
+│   └── Report.pdf                     # Supporting documentation
 │
-├── notebooks/                   # Jupyter notebooks (main deliverables)
+├── notebooks/                      # Jupyter notebooks (main deliverables)
 │   ├── 01_EDA_image.ipynb           # Part 1: Image data statistical analysis
 │   ├── 02_preprocessing_image.ipynb # Part 1: Image preprocessing pipeline
 │   ├── 03_EDA_tabular.ipynb         # Part 2: Tabular data EDA
 │   ├── 04_preprocessing_tabular.ipynb  # Part 2: Tabular preprocessing pipeline
 │   ├── 05_EDA_text.ipynb      # Part 3: Text data EDA
 │   └── 06_preprocessing_text.ipynb  # Part 3: Text preprocessing pipeline
-│
-├── latex.tex                    # Full LaTeX source for the project report
-├── CSC14004 - Data Mining - P1.pdf  # Assignment specification
+│                 
 ├── requirements.txt             # Python dependencies
 └── README.md                    # This file
 ```
