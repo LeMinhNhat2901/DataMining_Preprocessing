@@ -1,0 +1,158 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\geometry{a4paper, margin=1in}
+
+\title{\textbf{BÁO CÁO ĐỒ ÁN 1: TIỀN XỬ LÝ DỮ LIỆU\\Môn học: Khai thác dữ liệu và ứng dụng}}
+\author{Nhóm NTN NGH}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{TỔNG QUAN \& PHÂN CÔNG CÔNG VIỆC}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|p{4cm}|p{6.5cm}|}
+        \hline
+        \textbf{STT} & \textbf{MSSV} & \textbf{Họ và Tên} & \textbf{Nhiệm vụ / Phần đảm nhận} \\ \hline
+        1 & 23120047 & Nguyễn Gia Huy & Chuẩn hóa, mã hóa, Feature Selection, Xử lý mất cân bằng lớp \\ \hline
+        2 & 23120047 & Nguyễn Thành Nguyên & EDA, Xử lý Missing Data, Xử lý Outliers \\ \hline
+    \end{tabular}
+    \caption{Phân công nhiệm vụ nhóm}
+\end{table}
+
+\section{PHẦN 2: TIỀN XỬ LÝ DỮ LIỆU DẠNG BẢNG (TABULAR DATA)}
+\subsection{2.2.1. Lựa chọn tập dữ liệu}
+Tập dữ liệu được lựa chọn là \textbf{Rain in Australia (weatherAUS.csv)} bao gồm các quan trắc thời tiết thực tế qua nhiều năm. Dataset hoàn toàn thoả mãn yêu cầu đề bài do có số lượng mẫu rất lớn (145,460 dòng $\times$ 23 cột), gồm sự kết hợp giữa 16 cột số (numeric), 6 cột phân loại (categorical) và 1 cột datetime. Tỷ lệ missing data của tập là $10.73\%$, trong đó nhiều cột thiếu trên $40\%$ (Sunshine $48.0\%$, Evaporation $43.2\%$).
+
+\subsection{2.2.2. Phân tích thống kê khám phá (EDA chuyên sâu)}
+\begin{enumerate}
+    \item \textbf{Kiểm định phân phối (D'Agostino-Pearson):} Do $n = 145,460 > 5000$, chúng em sử dụng kiểm định D'Agostino-Pearson để khảo sát Normal Distribution trên 16 cột số.
+    \begin{itemize}
+        \item \textbf{Kết quả:} Kiểm định cho $p$-value xấp xỉ 0 ở cả 16/16 thuộc tính số, và các thống kê $K^2$-stat khổng lồ $\to$ Bác bỏ giả thuyết $H_0$. \textbf{100\% các thuộc tính KHÔNG tuân theo phân phối chuẩn.}
+        \item \textbf{Cụ thể:} \textit{Rainfall} lệch phải cực mạnh (Skewness = 9.89, Kurtosis = 180.0), \textit{Sunshine} bị lệch trái, \textit{Pressure9am} gần chuẩn nhất nhưng mang tính đuôi nặng.
+        \item \textbf{Minh chứng:} 
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.8\textwidth]{images/03_EDA_tabular_2.png}
+            \caption{Histogram \& KDE so sánh với phân phối chuẩn lý thuyết}
+        \end{figure}
+        Kết quả này định hình chiến lược ở khâu Data Scaling (Phải tránh sử dụng StandardScaler đơn thuần).
+    \end{itemize}
+
+    \item \textbf{Phân tích tương quan đa biến:} Heatmap của hệ số tương quan Pearson và Spearman cho thấy \textbf{3 tập hợp biến có đa cộng tuyến cực mạnh}:
+    \begin{itemize}
+        \item \textit{Temp3pm} $\leftrightarrow$ \textit{MaxTemp}: $r=0.985$
+        \item \textit{Pressure9am} $\leftrightarrow$ \textit{Pressure3pm}: $r=0.961$
+        \item \textit{Temp9am} $\leftrightarrow$ \textit{MinTemp}: $r=0.902$
+        \item \textbf{Minh chứng:}
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.7\textwidth]{images/03_EDA_tabular_11.png}
+            \caption{Ma trận tương quan đa biến giữa các thuộc tính số}
+        \end{figure}
+        \item \textbf{Nhận xét \& Giải pháp:} Hiện tượng đa cộng tuyến (multicollinearity) xảy ra khi 2 biến giải thích mang thông tin gần như giống hệt nhau ($|r| > 0.9$). Điều này gây suy diễn phình đại hệ số trong các mô hình tuyến tính (như Linear Regression hay Logistic Regression) và làm mô hình bị nhiễu. Đề xuất của nhóm là bỏ \textit{MaxTemp} (Giữ \textit{Temp3pm} vì nó sát với mốc dự đoán ngày mai hơn), bỏ \textit{MinTemp} và bỏ \textit{Pressure9am} để tối giản không gian đặc trưng mà vẫn giữ nguyên được lượng thông tin cốt lõi.
+    \end{itemize}
+
+    \item \textbf{Phân tích cơ chế giá trị thiếu (Little's MCAR \& Chi-Square Test):} 
+    Dữ liệu có tổn thất cực kỳ lớn ở cột \textit{Sunshine} và \textit{Evaporation} ($>40\%$). 
+    \begin{itemize}
+        \item \textbf{Minh chứng:} Sự thiếu hụt dữ liệu không phân bố đều mà đi theo từng cụm (block), thể hiện rõ qua biểu đồ ma trận giá trị thiếu.
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.9\textwidth]{images/03_EDA_tabular_5.png}
+            \caption{Biểu đồ phân bố và tần suất dữ liệu thiếu (Missingno)}
+        \end{figure}
+        \item Bài kiểm tra \textbf{Little's MCAR Test} chỉ ra $p$-value = 0.000 $\ll$ 0.05 $\to$ Việc thiếu dữ liệu KHÔNG sinh ra hoàn toàn ngẫu nhiên (Bác bỏ giả thuyết MCAR).
+        \item Nhóm chạy thêm \textbf{Kiểm nghiệm Độc lập Chi-Square ($H_0$: Việc thiếu độc lập với Vị trí)}, kết quả là 21/21 đặc trưng bị khuyết đều có lượng p-value bằng 0 đối chiếu với cột "Location", điểm $Cramér V$ ghi nhận mức tương tác cực kỳ cao (VD: Pressure3pm có $V=0.9094$).
+        \item \textbf{Kết luận:} Việc cảm biến đo đạc không ghi nhận được thông số Sunshine hay Evaporation phụ thuộc hoàn toàn vào trạm đo đó (Location). Khi một trạm đo không được lắp thiết bị, dữ liệu sẽ trống. Do đó, dữ liệu thời tiết thiếu theo cấu trúc \textbf{MAR (Missing At Random)}. Từ phát hiện học thuật này, các phép Imputation quá đơn giản như điền Median/Mean sẽ phá hỏng sự tương quan giữa các biến. Phương pháp điền khuyết suy diễn Model-based dựa trên quan hệ đa biến như MICE hoặc k-NN sẽ được ưu tiên tuyệt đối.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{2.2.3. Các kỹ thuật tiền xử lý và đánh giá định lượng}
+\begin{enumerate}
+    \item \textbf{Xử lý giá trị thiếu có kiểm soát (Imputation Benchmark):}
+    Để đánh giá khả năng điền khuyết một cách khoa học, nhóm chủ động trích xuất tập con không có NaN (ground-truth) thành $N=58,236$, và \textbf{che giấu đi khuyết $10\%$ dữ liệu bằng cơ chế giả MCAR} nhằm có một tập đo lường $RMSE$.
+    \begin{itemize}
+        \item 7 chiến lược (Mean, Median, Mode, k-NN($3/5/10$), MICE) được thực thi và tham chiếu với Ground-Truth.
+        \item \textbf{Kết quả:} \textit{MICE (IterativeImputer)} đạt hiệu quả dự báo xuất sắc nhất với RMSE $\approx 4.9734$. Kế tiếp là k-NN(k=10) có RMSE $\approx 5.5821$.
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.75\textwidth]{images/04_preprocessing_tabular_2.png}
+            \caption{Đánh giá trực chuẩn RMSE của 7 chiến lược điền khuyết}
+        \end{figure}
+        \item \textbf{Khẳng định:} Do đặc tính thiếu của dữ liệu là có cấu trúc (MAR) dựa vào từng trạm vật lý (`Location`), các Imputer đơn biến yếu kém nhất (Median, Mean, Mode) dễ dàng phá cấu trúc phân phối gốc do không giải được sự phụ thuộc qua lại. Giải thuật lặp hồi quy `IterativeImputer` (MICE) thâu tóm hoàn toàn và khôi phục các quy luật liên hệ đa biến ngầm ẩn giữa các luồng khí tượng, chính thức được nhóm áp dụng để clear $100\%$ NaN trên tập X\_train.
+    \end{itemize}
+    
+    \item \textbf{Phát hiện và Xử lý ngoại lai (Outliers Handling):}
+    Nhóm áp đặt song song 4 mô hình độc lập lên $N=145,460$ samples. Kết quả nhận diện số record cực đoan ở mỗi giải thuật chênh lệch vô cùng rõ rệt:
+    \begin{itemize}
+        \item IQR Boxplot: Xác định tới $\sim 25.64\%$ sample bất thường (do phân phối \textit{Rainfall} lệch quá đại đa số).
+        \item Z-score ($|z|>3$): 7,880 sample ($5.42\%$).
+        \item Cụm phi tuyến Isolation Forest (cont=$0.05$) \& DBSCAN: Trả về mức $5.0\%$ nhiễu.
+        \item \textbf{Nhận định hành động (Jaccard \& KS-Test):} 
+        Chỉ số Jaccard Index đo độ trùng lặp giữa Z-Score và IQR chỉ là $0.211$, cho thấy các công cụ định nghĩa Outlier khác nhau trên tập này.
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.8\textwidth]{images/04_preprocessing_tabular_3.png}
+            \caption{Quan sát mức độ chồng lấp ngoại lai bằng phương pháp Jaccard}
+        \end{figure}
+        Quan trọng nhất, bài kiểm định KS-Test chứng thực phân phối biểu đồ sẽ bị "méo mó" nghiêm trọng ở 16/16 cột nếu xoá bỏ outlier. Vì thời tiết cực đoan (gió lốc lớn, lượng mưa khủng) chứa đựng thông tin "Yes" mạnh mẽ để mô hình dự đoán được \textit{RainTomorrow}, thao tác Drop/Cap gọt Outliners bị bãi bỏ để đảm bảo dữ liệu gốc.
+    \end{itemize}
+    
+    \item \textbf{Chuẩn hoá dữ liệu (Robust Data Scaling):}
+    Do phải sống chung với Outliners, nhóm thử nghiệm các chuẩn biến đổi dữ liệu mạnh mẽ bao gồm Min-Max, Z-score, và RobustScaler.
+    \begin{itemize}
+        \item \textbf{Kiểm định Levene's Test ($H_0$: Phương sai đồng nhất)} cho thấy $p$-value $\approx 0$ trên 16 biến kể cả sau khu chuẩn hoá.
+        \item \textbf{Minh chứng trực quan qua Violin \& Boxplot:} 
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.85\textwidth]{images/04_preprocessing_tabular_4.png}
+            \caption{Độ biến dạng phân phối (Violin Plot) trước và sau các kỹ thuật Scale}
+        \end{figure}
+        Từ hình mô tả trên, ta thấy $Z-Score$ và $MinMaxScaler$ bóp méo không gian trọng tâm về một hướng (bị lệch tâm do ngậm Outlier). Trái lại, \textit{RobustScaler} (Dịch chuyển bằng Trung vị Median và rút gọn theo mốc phân vị $IQR = Q3-Q1$) giữ nguyên hình dạng "đuôi dài", triệt tiêu sự biến dạng và giữ vững quy luật phân bố gốc của biến khí hậu so với dữ liệu thô.
+    \end{itemize}
+    
+    \item \textbf{Mã hóa biến phân loại nâng cao (Feature Encoding):}
+    Khó khăn lớn nhất nằm ở cột `Location` (chứa $49$ classes), việc dùng `pd.get_dummies` là thảm hoạ vì Curse of Dimensionality. Thay vào đó, nhóm áp dụng: 
+    \begin{itemize}
+        \item \textbf{Binary Encoding:} Bẻ $49$ labels thành chỉ $6$ cột nhị phân mới mà không gây mất mác thông tin.
+        \item \textbf{Target Encoding (Có kỹ thuật 5-Fold smoothing):} Trao cho model giá trị xác suất dựa trên nhãn mục tiêu. 
+        \item \textbf{Kiểm định Đa cộng tuyến mới sinh (VIF Check):} Đỉnh VIF (Variance Inflation Factor) của Target Encoding chỉ dừng ở mức $1.73$, của Binary là $1.3$. Tất cả đều nằm lọt thỏm dưới ngưỡng nguy hiểm $VIF=10$, chứng tỏ thủ thuật Encode này không để lại hậu quả Đa cộng tuyến trên bộ feature mới.
+    \end{itemize}
+    
+    \item \textbf{Đo lường độ quan trọng và Giảm chiều dữ liệu (Feature Selection \& dimensionality reduction):}
+    Sau Data Cleaning, không gian nới lỏng thành $n$ tính năng. Đứng trước sự phân chia đó, nhóm kết hợp 2 chuẩn mực đo \textbf{Mutual Information (Phi tuyến)} và \textbf{ANOVA (Tuyến tính)}.
+    \begin{itemize}
+        \item \textbf{Kết quả Feature Importance:} Cả 2 bài đo lường đều vinh danh \textit{Humidity3pm} (Độ ẩm buổi chiều) giữ ngôi vương với mức đo MI Score $> 0.11$. Vòng lập chạy thuật toán Random Forest Classifier cũng xác nhận \textit{Humidity3pm} đóng góp $Gini \: Importance = 0.238$ quyết định nhãn Mưa vào hôm sau. Nhóm \textit{Gió (WindDir)} gần như vô vị trong tiến trình.
+        \item \textbf{Trực quan hoá chiều không gian PCA \& UMAP:}
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.8\textwidth]{images/04_preprocessing_tabular_8.png}
+            \caption{Đổ bóng 3D PCA và Non-linear t-SNE / UMAP}
+        \end{figure}
+        Sử dụng PCA (Principal Component Analysis) chỉ có thể gom tụ lại $31.5\%$ độ biến thiên đầu tiên, do đường ranh phân định (Decision Boundaries) là rất phức tạp (phi tuyến). Hình trích xuất từ UMAP với $K=15$ thể hiện sự đan xen sâu sắc giữa nhóm $Yes/No$, đòi hỏi những thuật toán cây phức hợp phi tuyến tính (như XGBoost/LightGBM) khi train.
+    \end{itemize}
+    
+    \item \textbf{Xứ lý mất cân bằng lớp - Khảo sát chuyên sâu [Advanced Imbalance handling]:}
+    Nhãn \textit{RainTomorrow} lệch trục phân chia (No: $78.1\%$ - Yes: $21.9\%$), mang số Imbalance Ratio (IR) $= 0.28$. Nhóm thử nghiệm cấy ghép mẫu ảo bằng SMOTE và ADASYN.
+    \begin{itemize}
+        \item \textbf{Quy tắc Data Leakage nghiêm ngặt:} Mọi biến đổi nội suy mẫu ảo (SMOTE) CHỈ ĐƯỢC PHÉP ÁP DỤNG độc lập trên phân vùng $Tập \: Train$, đồng thời đóng băng không can thiệp chỉnh sửa cấu trúc của $Tập \: Validation / Test$.
+        \item \textbf{Lợi bất cập hại:} Ngược với lý thuyết thông thường, hiệu năng AUC-ROC của Data có SMOTE ($F1 \approx 0.7381$) lại suy giảm đáng kể so với Baseline thô thuần khiết ($F1 \approx 0.7489$). Quá trình nội suy sinh ảnh ảo đã dẫn tới lượng điểm dữ liệu "nhiễu biên" cực kỳ khổng lồ, bóp nghẹt Model trong việc tạo đường Hyperplane ở ranh giới sát. 
+        \item \textit{Bản án quyết định:} Loại bỏ hoàn toàn sự can thiệp tái mẫu (Resampling). Ưu tiên tăng cường bằng thủ thuật $class\_weight='balanced'$ khi Train Model.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
