@@ -32,6 +32,13 @@ The scope of the assignment covers:
 
 - **Part 3 — Text Data:** Preprocessing pipeline for the IMDB 50K Movie Reviews dataset. Tasks include text length distribution analysis (Mann-Whitney U test), word cloud and TTR analysis, Zipf's Law verification, a multi-step normalization pipeline (lowercasing, HTML removal, tokenization), stop-word impact analysis (MI and Naive Bayes), stemming/lemmatization comparison (collision rate and Logistic Regression CV), and text vectorization (BoW, TF-IDF n-gram, Word2Vec, Sentence Transformer).
 
+- **Link dataset**
+  - **Part 1:** https://www.kaggle.com/datasets/puneet3806/intel-image-classification
+  - **Part 2:** https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package
+  - **Part 3:** https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews
+
+- **Link Google Drive:** https://drive.google.com/drive/folders/1v2XAsuN0Nd4FLp8O9LrvzkcSq5-SQRo1?usp=sharing
+
 ---
 
 ## 2. Team Members
@@ -40,7 +47,7 @@ The scope of the assignment covers:
 
 | No. | Student ID | Full Name | Responsibilities | Completion |
 | :-: | :---: | :--- | :--- | :---: |
-| 1 | 23120067 | Le Minh Nhat | Part 1 — Statistical analysis, image preprocessing techniques, report writing | 100% |
+| 1 | 23120067 | Le Minh Nhat | Part 1 — Statistical analysis, image preprocessing techniques, report writing, make readme.md, check final version, aggregate & finalize repo, documentation | 100% |
 | 2 | 23120062 | Tran Kim Ngoc | Part 1 — Preprocessing techniques, impact analysis, advanced image processing | 100% |
 | 3 | 23120047 | Nguyen Gia Huy | Part 2 — Normalization, encoding, feature selection, class imbalance handling | 100% |
 | 4 | 23120063 | Nguyen Thanh Nguyen | Part 2 — EDA, missing data handling, outlier detection | 100% |
@@ -76,10 +83,11 @@ The scope of the assignment covers:
 ```
 DataMining_Preprocessing/
 │
-├── data/                        # Raw and processed datasets (not tracked by git)
+├── data/                        # Raw and processed datasets (not tracked by git, using link Google Drive that link to this github)
 │
 ├── docs/                        # Supporting documentation
-│
+│   ├── report.pdf               # Full report in PDF format
+│   ├── CSC14004 - Data Mining - P1.pdf  # Assignment specification
 ├── notebooks/                   # Jupyter notebooks (main deliverables)
 │   ├── 01_EDA_image.ipynb           # Part 1: Image data statistical analysis
 │   ├── 02_preprocessing_image.ipynb # Part 1: Image preprocessing pipeline
@@ -88,10 +96,8 @@ DataMining_Preprocessing/
 │   ├── 05_EDA_text.ipynb.ipynb      # Part 3: Text data EDA
 │   └── 06_preprocessing_text.ipynb  # Part 3: Text preprocessing pipeline
 │
-├── latex.tex                    # Full LaTeX source for the project report
-├── CSC14004 - Data Mining - P1.pdf  # Assignment specification
 ├── requirements.txt             # Python dependencies
-└── README.md                    # This file
+└── README.md                    # Project summary, problem statement, datasets, structure and team members
 ```
 
 ---
@@ -143,7 +149,7 @@ cd DataMining_Preprocessing
 
 Using `venv`:
 ```bash
-python -m venv venv
+python -m venv venv python=3.10
 
 # Windows
 venv\Scripts\activate
@@ -220,14 +226,23 @@ Full version-pinned list: see `requirements.txt`.
 
 ### Instructors
 
-- ThS. Nguyen Thi Thu Hang
-- ThS. Nguyen Ngoc Duc
-- ThS. Le Nhut Nam
+- **Nguyen Thi Thu Hang** - <ntthang@fit.hcmus.edu.vn> 
+- **Nguyen Ngoc Duc** - <nnduc@fit.hcmus.edu.vn>
+- **Le Nhut Nam** - <lnnam@fit.hcmus.edu.vn>
 
 ### Academic Integrity
 
 All code in this repository is the original work of the group members listed above. External libraries are used in accordance with their respective licenses and are cited where applicable in the notebooks. No unauthorized collaboration or code sharing has taken place.
 
+### Support and Questions
+
+For course-related questions or technical support:
+
+*   **Primary Channel:** Use the course's ZALO group.
+*   **Office Hours:** As announced by the instructors.
+*   **Project Issues:** Contact the project lead via email or GitHub.
+
 ---
 
-*Submitted: April 23, 2026 — Group 8, CSC14004, HCMUS*
+**© 2026 University of Science (VNU-HCMC)**  
+*Developed for Data Mining and Applications*

@@ -1,24 +1,41 @@
+# --- Core ---
 numpy
 pandas
+scipy
+statsmodels
+tqdm
+
+# --- Visualization ---
 matplotlib
 seaborn
-scipy
+wordcloud
+
+# --- Machine Learning ---
 scikit-learn
-statsmodels
+imbalanced-learn      # Part 2: SMOTE, ADASYN, RandomUnderSampler
+
+# --- Image Processing (Part 1) ---
 opencv-python
 Pillow
 scikit-image
-imagehash
-tqdm
-missingno
-wordcloud
+imagehash             # optional: pHash is self-implemented in notebooks, but kept as fallback
+
+# --- NLP (Part 3) ---
 nltk
 spacy
 tokenizers
 gensim
 sentence-transformers
+
+# --- Tabular / EDA ---
+missingno             # Part 2: missing data matrix visualization
+
+# --- Jupyter ---
 jupyter
 ipykernel
+
+# --- Optional (gracefully skipped if not installed) ---
+umap-learn            # Part 2: UMAP visualization (notebook has try/except fallback)
 
 # Extra runtime assets needed by the notebooks:
 # python -m nltk.downloader averaged_perceptron_tagger_eng wordnet omw-1.4
