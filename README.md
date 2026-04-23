@@ -83,19 +83,20 @@ The scope of the assignment covers:
 ```
 DataMining_Preprocessing/
 │
-├── data/                        # Raw and processed datasets (not tracked by git, using link Google Drive that link to this github)
+├── data/                        # Raw and processed datasets (not tracked by git)
 │
 ├── docs/                        # Supporting documentation
-│   ├── report.pdf               # Full report in PDF format
-│   ├── CSC14004 - Data Mining - P1.pdf  # Assignment specification
+│
 ├── notebooks/                   # Jupyter notebooks (main deliverables)
 │   ├── 01_EDA_image.ipynb           # Part 1: Image data statistical analysis
 │   ├── 02_preprocessing_image.ipynb # Part 1: Image preprocessing pipeline
 │   ├── 03_EDA_tabular.ipynb         # Part 2: Tabular data EDA
 │   ├── 04_preprocessing_tabular.ipynb  # Part 2: Tabular preprocessing pipeline
-│   ├── 05_EDA_text.ipynb.ipynb      # Part 3: Text data EDA
+│   ├── 05_EDA_text.ipynb      # Part 3: Text data EDA
 │   └── 06_preprocessing_text.ipynb  # Part 3: Text preprocessing pipeline
 │
+├── latex.tex                    # Full LaTeX source for the project report
+├── CSC14004 - Data Mining - P1.pdf  # Assignment specification
 ├── requirements.txt             # Python dependencies
 └── README.md                    # Project summary, problem statement, datasets, structure and team members
 ```
@@ -183,9 +184,9 @@ python -m spacy download en_core_web_sm
 
 Download the datasets from Kaggle and place them under the `data/` directory:
 
-- Intel Image Classification: extract to `data/intel_image/`
-- Rain in Australia (`weatherAUS.csv`): place in `data/tabular/`
-- IMDB 50K Movie Reviews (`IMDB Dataset.csv`): place in `data/text/`
+- Intel Image Classification: extract to `data/raw/`
+- Rain in Australia (`weatherAUS.csv`): place in `data/raw/`
+- IMDB 50K Movie Reviews (`IMDB Dataset.csv`): place in `data/raw/`
 
 ### Step 6: Run the notebooks
 
