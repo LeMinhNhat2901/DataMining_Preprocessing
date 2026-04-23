@@ -1,3 +1,150 @@
 WELFake_Dataset.csv
 *.csv
 data/raw/
+# =========================
+# OS / File Explorer
+# =========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.Spotlight-V100/
+.Trashes/
+._*
+
+# =========================
+# Python bytecode / cache
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+*.pyo
+
+# =========================
+# Build / packaging
+# =========================
+build/
+dist/
+site/
+.eggs/
+*.egg
+*.egg-info/
+pip-wheel-metadata/
+MANIFEST
+wheels/
+
+# =========================
+# Virtual environments
+# =========================
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# =========================
+# Test / coverage / lint
+# =========================
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+htmlcov/
+*.cover
+*.py,cover
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+.hypothesis/
+
+# =========================
+# Jupyter / IPython
+# =========================
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+
+# =========================
+# Logs / runtime files
+# =========================
+*.log
+*.out
+*.err
+*.pid
+*.pid.lock
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.iml
+*.suo
+*.user
+*.userossc
+*.sln.docstates
+*.swp
+*.swo
+*~
+
+# =========================
+# Data science artifacts
+# =========================
+mlruns/
+wandb/
+lightning_logs/
+tensorboard/
+runs/
+
+# Model / checkpoint files
+*.ckpt
+*.pt
+*.pth
+*.h5
+*.onnx
+*.joblib
+*.pkl
+
+# =========================
+# Temporary files
+# =========================
+tmp/
+temp/
+*.tmp
+
+# =========================
+# Environment / secrets
+# =========================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# =========================
+# Data files (optional - keep commented if tracking data in git)
+# =========================
+seg_train/
+seg_test/
+seg_pred/
+# data/
+# datasets/
+# *.csv
+# *.tsv
+# *.parquet
+# *.feather
+# *.jsonl
+
+# =========================
+# Project-specific (if needed)
+# =========================
+# artifacts/
+# outputs/
+# reports/
